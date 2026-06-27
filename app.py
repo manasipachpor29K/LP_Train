@@ -1,5 +1,6 @@
-
+import streamlit as st
 import pandas as pd
+import plotly.express as px
 
 # ---------------------------------------------------
 # PAGE CONFIG
@@ -27,7 +28,7 @@ st.markdown("""
     padding: 20px;
     border-radius: 15px;
     color: white;
-    text-align: center
+    text-align: center;
 }
 .badge-success {
     background-color: #d4edda;
@@ -35,7 +36,7 @@ st.markdown("""
     padding: 12px;
     border-radius: 12px;
     font-weight: bold;
-    text-align: center
+    text-align: center;
 }
 .badge-danger {
     background-color: #f8d7da;
@@ -43,7 +44,7 @@ st.markdown("""
     padding: 12px;
     border-radius: 12px;
     font-weight: bold;
-    text-align: center
+    text-align: center;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -63,7 +64,10 @@ df = load_data()
 # EMI CALCULATION
 # ---------------------------------------------------
 def calculate_emi(loan, annual_rate=10, years=20):
-   
+    r = annual_rate / (12 * 100)
+    n = years * 12
+    emi = (loan * r * (1 + r) ** n) / ((1 + r) ** n - 1)
+    return emi
 
 # ---------------------------------------------------
 # LOAN PREDICTION LOGIC
@@ -72,7 +76,7 @@ def predict_loan(credit_history, monthly_income, loan_amount):
     emi = calculate_emi(loan_amount)
     if credit_history == 1.0 and emi <= monthly_income * 0.4:
         return "Approved", emi
-    return "Rejected"
+    return "Rejected", emi
 
 # ---------------------------------------------------
 # SIDEBAR
@@ -203,4 +207,5 @@ if page == "Analytics":
     fig3 = px.bar(df, x="Property_Area", y="Loan_Status", title="Approval by Property Area", color="Property_Area")
     st.plotly_chart(fig3, use_container_width=True)
 
-   
+    st.subheader("📄 Raw Loan Dataset")
+    st.dataframe(df, use_container_width=True)
